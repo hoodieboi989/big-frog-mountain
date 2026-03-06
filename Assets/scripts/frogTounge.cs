@@ -4,15 +4,36 @@ using System.Collections;
   
 public class FrogTongue : MonoBehaviour  
 {  
-    public float tongueDistance = 20f;  
+    public float tongueDistance;  
     public LineRenderer lineRenderer;  
     private PlayerControls controls;  
+    public Vector2 pullTarget;  
+    public bool isPulling = false;  
+    public float pullSpeed;
+    private Rigidbody2D rb;
   
     void Awake()  
     {  
         controls = new PlayerControls();  
         controls.Gameplay.ShootTongue.performed += _ => ShootTongue();
+        rb = GetComponent<Rigidbody2D>();
     }  
+
+    void Update()
+    {
+        if (isPulling)
+        {
+            Vector2 direction = (pullTarget - (Vector2)transform.position).normalized;
+            rb.linearVelocity = direction * pullSpeed;
+
+            //stop pulling if close enough
+            if (Vector2.Distance(transform.position, pullTarget) < 0.5f)
+            {
+                isPulling = false;
+                rb.linearVelocity = Vector2.zero;
+            }
+        }
+    }
   
     void OnEnable() { controls.Gameplay.Enable(); }  
     void OnDisable() { controls.Gameplay.Disable(); }  
@@ -21,34 +42,83 @@ public class FrogTongue : MonoBehaviour
 
     IEnumerator AnimateTongue(Vector2 direction)  
     {  
-        float speed = 60f; // How fast the tongue extends  
+        float speed = 120f; // How fast the tongue extends  
         lineRenderer.positionCount = 2;    
         lineRenderer.SetPosition(0, transform.position);    
   
-    Vector2 start = transform.position;    
-    Vector2 end = start;    
-  
-    Vector2 target = start + direction * tongueDistance;  
-    float traveled = 0f;  
+        Vector2 start = transform.position;    
+        Vector2 end = start;    
     
-    while (traveled < tongueDistance)  
-    {  
-        float step = speed * Time.deltaTime;  
-        traveled += step;  
-        Vector2 nextPoint = Vector2.Lerp(start, target, traveled / tongueDistance);  
+        Vector2 target = start + direction * tongueDistance;  
+        float traveled = 0f;  
     
-        lineRenderer.SetPosition(1, nextPoint);  
-    
-        RaycastHit2D hit = Physics2D.Raycast(start, direction, traveled);  
-        if (hit.collider != null)  
+        while (traveled < tongueDistance)  
         {  
-            lineRenderer.SetPosition(1, hit.point);  
-            yield break;  
+            float step = speed * Time.deltaTime;  
+            traveled += step;  
+            Vector2 nextPoint = Vector2.Lerp(start, target, traveled / tongueDistance);  
+        
+            lineRenderer.SetPosition(1, nextPoint);  
+        
+            RaycastHit2D hit = Physics2D.Raycast(start, direction, traveled);  
+            if (hit.collider != null)    
+            {    
+                lineRenderer.SetPosition(1, hit.point);    
+                StartCoroutine(GrapplePull(hit.point));  
+                yield break;   
+            }  
+            yield return null;  
         }  
-        yield return null;  
-}  
-    // If we reach here, tongue fully extended without hitting    
-    // (We'll add retraction here next!)    
+        // If we reach here, tongue fully extended without hitting    
+        // (We'll add retraction here next!)  
+        // Now retract the tongue back to the frog  
+        Vector2 retractStart = lineRenderer.GetPosition(1); // The tip where extension stopped  
+        float retractProgress = 0f;  
+        float retractSpeed = 30f;  
+        
+        while (retractProgress < 1f)  
+        {  
+            retractProgress += retractSpeed * Time.deltaTime / tongueDistance;  
+            Vector2 retractPoint = Vector2.Lerp(retractStart, (Vector2)transform.position, retractProgress);  
+            lineRenderer.SetPosition(1, retractPoint);  
+            yield return null;  
+        }  
+        
+        // Hide tongue when done  
+        lineRenderer.positionCount = 0;  
+    }  
+
+    IEnumerator GrapplePull(Vector2 targetPoint)  
+    {   
+        // Keep tongue extended  
+        lineRenderer.positionCount = 2;  
+        lineRenderer.SetPosition(1, targetPoint);  
+    
+        while (Vector2.Distance(transform.position, targetPoint) > 0.1f)  
+        {  
+            // Move frog toward target  
+            transform.position = Vector2.MoveTowards(transform.position, targetPoint, pullSpeed * Time.deltaTime);  
+    
+            // Update tongue base to frog's position  
+            lineRenderer.SetPosition(0, transform.position);  
+    
+            yield return null;  
+        }  
+    
+        // Now retract tongue from target to frog  
+        float retractTime = 0.2f;  
+        float t = 0;  
+        Vector2 startTip = targetPoint;  
+        while (t < 1f)  
+        {  
+            t += Time.deltaTime / retractTime;  
+            Vector2 tip = Vector2.Lerp(startTip, (Vector2)transform.position, t);  
+            lineRenderer.SetPosition(1, tip);  
+            lineRenderer.SetPosition(0, transform.position); // still follow frog  
+            yield return null;  
+        }  
+    
+        lineRenderer.positionCount = 0; // Hide tongue when done  
     }  
 
     void ShootTongue()  
