@@ -1,6 +1,7 @@
 using UnityEngine;  
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.UI;
   
 public class FrogTongue : MonoBehaviour  
 {  
@@ -11,6 +12,9 @@ public class FrogTongue : MonoBehaviour
     public bool isPulling = false;  
     public float pullSpeed;
     private Rigidbody2D rb;
+    public int maxHealth = 50;
+    private int currentHealth;
+    public Text healthText;
   
     void Awake()  
     {  
@@ -38,7 +42,44 @@ public class FrogTongue : MonoBehaviour
     void OnEnable() { controls.Gameplay.Enable(); }  
     void OnDisable() { controls.Gameplay.Disable(); }  
   
-    void Start() { lineRenderer.positionCount = 0; }  
+    void Start() 
+    { 
+        lineRenderer.positionCount = 0;
+        currentHealth = maxHealth;
+        healthText.text = "Health: " + currentHealth;
+    }  
+
+    public void TakeDamage(int amount)  
+    {  
+        currentHealth -= amount;  
+        if (currentHealth <= 0)
+        {  
+            currentHealth = 0;  
+            // Handle death (restart, game over, etc.)  
+            Debug.Log("Frog died!");  
+        }  
+        else  
+        {  
+            Debug.Log("Frog hurt! Health: " + currentHealth);  
+        }  
+
+        healthText.text = "Health: " + currentHealth;
+    }  
+
+    IEnumerator RetractTongue(Vector2 retractStart)  
+    {  
+        float retractSpeed = 30f;  
+        float retractProgress = 0f;  
+        while (retractProgress < 1f)  
+        {  
+            retractProgress += retractSpeed * Time.deltaTime / tongueDistance;  
+            Vector2 retractPoint = Vector2.Lerp(retractStart, (Vector2)transform.position, retractProgress);  
+            lineRenderer.SetPosition(1, retractPoint);  
+            lineRenderer.SetPosition(0, transform.position);  
+            yield return null;  
+        }  
+        lineRenderer.positionCount = 0;  
+    }  
 
     IEnumerator AnimateTongue(Vector2 direction)  
     {  
@@ -61,13 +102,26 @@ public class FrogTongue : MonoBehaviour
             lineRenderer.SetPosition(1, nextPoint);  
         
             RaycastHit2D hit = Physics2D.Raycast(start, direction, traveled);  
-            if (hit.collider != null)    
-            {    
-                lineRenderer.SetPosition(1, hit.point);    
-                StartCoroutine(GrapplePull(hit.point));  
-                yield break;   
+            if (hit.collider != null)      
+            {      
+                lineRenderer.SetPosition(1, hit.point);      
+            
+                if (hit.collider.CompareTag("Ground"))  
+                {  
+                    // Apply push  
+                    Vector2 pushDir = ((Vector2)transform.position - hit.point).normalized;  
+                    float pushForce = 10f;  
+                    rb.AddForce(pushDir * pushForce, ForceMode2D.Impulse);  
+            
+                    // Retract the tongue  
+                    StartCoroutine(RetractTongue(hit.point));  
+                }  
+                else  
+                {  
+                    StartCoroutine(GrapplePull(hit.point));  
+                }  
+                yield break;     
             }  
-            yield return null;  
         }  
         // If we reach here, tongue fully extended without hitting    
         // (We'll add retraction here next!)  
