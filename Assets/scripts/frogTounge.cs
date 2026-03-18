@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using UnityEngine.UI;
+using TMPro;
   
 public class FrogTongue : MonoBehaviour  
 {  
@@ -14,7 +15,7 @@ public class FrogTongue : MonoBehaviour
     private Rigidbody2D rb;
     public int maxHealth = 50;
     private int currentHealth;
-    public Text healthText;
+    public TMP_Text healthText;
   
     void Awake()  
     {  
@@ -184,5 +185,13 @@ public class FrogTongue : MonoBehaviour
         mouseWorld.z = transform.position.z;  
         Vector2 direction = ((Vector2)mouseWorld - (Vector2)transform.position).normalized;  
         StartCoroutine(AnimateTongue(direction));  
+    } 
+
+    void OnCollisionEnter2D(Collision2D collision)  
+    {  
+        if (collision.collider.CompareTag("Enemy"))  
+        {  
+            TakeDamage(1);  
+        }  
     }  
 }  

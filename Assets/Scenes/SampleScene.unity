@@ -351,7 +351,7 @@ MonoBehaviour:
   isPulling: 0
   pullSpeed: 20
   maxHealth: 50
-  healthText: {fileID: 0}
+  healthText: {fileID: 1786359886}
 --- !u!50 &171775759
 Rigidbody2D:
   serializedVersion: 5
@@ -507,7 +507,7 @@ GameObject:
   - component: {fileID: 190017060}
   m_Layer: 0
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -635,7 +635,7 @@ GameObject:
   - component: {fileID: 372897814}
   - component: {fileID: 372897813}
   m_Layer: 5
-  m_Name: HealthText
+  m_Name: healthText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1110,15 +1110,15 @@ RectTransform:
   m_GameObject: {fileID: 1786359884}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 372897816}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -397, y: 238}
-  m_SizeDelta: {x: 151.9881, y: 38.411}
+  m_AnchoredPosition: {x: -210.91608, y: 164}
+  m_SizeDelta: {x: 258.9731, y: 36.0239}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1786359886
 MonoBehaviour:
@@ -1206,7 +1206,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: -3.3111267, z: 0, w: 0}
+  m_margin: {x: 0, y: -3.3111267, z: -0.6843262, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
