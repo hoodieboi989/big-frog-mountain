@@ -18,6 +18,7 @@ public class FrogTongue : MonoBehaviour
     public TMP_Text healthText;
     public float invincibilityTime = .25f;
     private bool isInvincible = false;
+    public float pushForce = 20;
   
     void Awake()  
     {  
@@ -124,8 +125,7 @@ public class FrogTongue : MonoBehaviour
                 if (hit.collider.CompareTag("Ground"))  
                 {  
                     // Apply push  
-                    Vector2 pushDir = ((Vector2)transform.position - hit.point).normalized;  
-                    float pushForce = 10f;  
+                    Vector2 pushDir = ((Vector2)transform.position - hit.point).normalized;   
                     rb.AddForce(pushDir * pushForce, ForceMode2D.Impulse);  
             
                     // Retract the tongue  
