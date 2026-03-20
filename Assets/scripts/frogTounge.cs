@@ -16,6 +16,8 @@ public class FrogTongue : MonoBehaviour
     public int maxHealth = 50;
     private int currentHealth;
     public TMP_Text healthText;
+    public float invincibilityTime = .25f;
+    private bool isInvincible = false;
   
     void Awake()  
     {  
@@ -50,8 +52,19 @@ public class FrogTongue : MonoBehaviour
         healthText.text = "Health: " + currentHealth;
     }  
 
+    IEnumerator InvincibilityCoroutine()  
+    {  
+        isInvincible = true;  
+        // Optional: add a visual effect here (like flashing)  
+        yield return new WaitForSeconds(invincibilityTime);  
+        isInvincible = false;  
+    }  
+
+
     public void TakeDamage(int amount)  
     {  
+        if (isInvincible) return;
+
         currentHealth -= amount;  
         if (currentHealth <= 0)
         {  
@@ -65,6 +78,7 @@ public class FrogTongue : MonoBehaviour
         }  
 
         healthText.text = "Health: " + currentHealth;
+        StartCoroutine(InvincibilityCoroutine());
     }  
 
     IEnumerator RetractTongue(Vector2 retractStart)  
