@@ -3,7 +3,9 @@ using UnityEngine.InputSystem;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-  
+
+
+
 public class FrogTongue : MonoBehaviour  
 {  
     public float tongueDistance;  
@@ -14,11 +16,12 @@ public class FrogTongue : MonoBehaviour
     public float pullSpeed;
     private Rigidbody2D rb;
     public int maxHealth = 50;
-    private int currentHealth;
+    public int currentHealth;
     public TMP_Text healthText;
     public float invincibilityTime = .25f;
     private bool isInvincible = false;
     public float pushForce = 20;
+    public int nextAttackBonus = 0;
   
     void Awake()  
     {  
@@ -203,6 +206,21 @@ public class FrogTongue : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)  
     {  
+         if (collision.collider.CompareTag("Enemy"))  
+        {  
+            // 1. Get the enemy's health script  
+            EnemyHealth enemyHealth = collision.gameObject.GetComponent<EnemyHealth>();  
+  
+            // 2. Calculate damage (Base 1 + Bonus)  
+            int damage = 1 + nextAttackBonus;  
+  
+            // 3. Deal the damage  
+            enemyHealth.TakeDamage(damage);  
+  
+            // 4. Reset the bonus immediately  
+            nextAttackBonus = 0;  
+        }  
+
         if (collision.collider.CompareTag("Enemy"))  
         {  
             TakeDamage(1);  

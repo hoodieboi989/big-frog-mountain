@@ -17,13 +17,5 @@ public class EnemyHealth : MonoBehaviour
         {  
             Destroy(gameObject); // Enemy disappears when health is gone  
         }  
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)  
-    {  
-        if (collision.collider.CompareTag("Player"))  
-        {  
-            TakeDamage(1); // or any amount you want  
-        }  
-    }    
+    }  
 }  
